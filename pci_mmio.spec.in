@@ -1,0 +1,82 @@
+#
+# PCI MMIO tool
+#
+# Copyright (C) 2017-2018 NEC Corporation
+# This file is part of the PCI MMIO tool.
+#
+# The PCI MMIO tool is free software; you can redistribute it
+# and/or modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either version
+# 2.1 of the License, or (at your option) any later version.
+#
+# The PCI MMIO tool is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with the PCI MMIO tool; if not, see
+# <http://www.gnu.org/licenses/>.
+#
+
+Name:		@PACKAGE@
+Version:	@VERSION@
+Release:	@RELEASE@
+Summary:	PCI resource access library and command
+Group:		System Environment/Libraries
+License:	LGPL
+Source0:	@PACKAGE@-@VERSION@.tar.gz
+Vendor:		NEC Corporation
+Packager:	Toshikazu Aoyama <t-aoyama@ap.jp.nec.com>
+BuildArch:	x86_64
+Requires:	kernel >= 2.6, pciutils-libs >= 3.2.1, systemd-libs >= 219
+BuildRequires:	pciutils-devel >= 3.2.1, systemd-devel >= 219
+
+%description
+PCI resource access library and command
+
+%package        devel
+Summary:        Headers and libraries for building apps that use libpcim
+Group:          Development/Libraries
+Requires:       %{name} = %{version}-%{release}
+
+%description    devel
+This package contains headers and libraries required to build applications that
+use libpcim.
+
+%define _prefix @prefix@
+
+%prep
+%setup -q
+
+%build
+%configure
+make %{?_smp_mflags}
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make install DESTDIR=$RPM_BUILD_ROOT
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(-,root,root,-)
+%doc
+%{_bindir}/*
+%{_libdir}/*.so.*
+
+%files devel
+%defattr(-,root,root,-)
+%doc
+%{_includedir}/*.h
+%{_libdir}/*.a
+%{_libdir}/*.la
+%{_libdir}/*.so
+#%{_datadir}/aclocal/*.m4
+
+%changelog
